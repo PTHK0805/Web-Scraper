@@ -7,6 +7,14 @@ type MediaData = {
   videos: string[];
 };
 
+function makeUrlAbsolute(relativeUrl: string, baseUrl: string): string {
+  try {
+    return new URL(relativeUrl, baseUrl).href;
+  } catch {
+    return relativeUrl;
+  }
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<MediaData | { error: string }>
@@ -26,16 +34,28 @@ export default async function handler(
     const html = response.data;
     const $ = cheerio.load(html);
     
-    const images: string[] = [];
-    const videos: string[] = [];
+    const imageUrls = new Set<string>();
+    const videoUrls = new Set<string>();
 
     // Extract image URLs
     $('img').each((_, element) => {
       const src = $(element).attr('src');
+      const dataSrc = $(element).attr('data-src'); // For lazy-loaded images
+      const srcset = $(element).attr('srcset');
+
       if (src) {
-        // Convert relative URLs to absolute URLs
-        const absoluteUrl = new URL(src, url).href;
-        images.push(absoluteUrl);
+        imageUrls.add(makeUrlAbsolute(src, url));
+      }
+      if (dataSrc) {
+        imageUrls.add(makeUrlAbsolute(dataSrc, url));
+      }
+      if (srcset) {
+        srcset.split(',').forEach(src => {
+          const srcUrl = src.trim().split(' ')[0];
+          if (srcUrl) {
+            imageUrls.add(makeUrlAbsolute(srcUrl, url));
+          }
+        });
       }
     });
 
@@ -43,23 +63,25 @@ export default async function handler(
     $('video').each((_, element) => {
       const src = $(element).attr('src');
       if (src) {
-        const absoluteUrl = new URL(src, url).href;
-        videos.push(absoluteUrl);
+        videoUrls.add(makeUrlAbsolute(src, url));
       }
 
       // Check for source tags within video elements
       $(element).find('source').each((_, sourceElement) => {
         const sourceSrc = $(sourceElement).attr('src');
         if (sourceSrc) {
-          const absoluteUrl = new URL(sourceSrc, url).href;
-          videos.push(absoluteUrl);
+          videoUrls.add(makeUrlAbsolute(sourceSrc, url));
         }
       });
     });
 
+    // Convert Sets to Arrays
+    const images = Array.from(imageUrls);
+    const videos = Array.from(videoUrls);
+
     res.status(200).json({
-      images: [...new Set(images)], // Remove duplicates
-      videos: [...new Set(videos)], // Remove duplicates
+      images,
+      videos,
     });
   } catch (error) {
     console.error('Scraping error:', error);
