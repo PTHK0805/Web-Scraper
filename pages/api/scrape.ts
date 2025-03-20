@@ -15,6 +15,10 @@ function makeUrlAbsolute(relativeUrl: string, baseUrl: string): string {
   }
 }
 
+function removeDuplicates(arr: string[]): string[] {
+  return Array.from(new Set(arr));
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<MediaData | { error: string }>
@@ -34,8 +38,8 @@ export default async function handler(
     const html = response.data;
     const $ = cheerio.load(html);
     
-    const imageUrls = new Set<string>();
-    const videoUrls = new Set<string>();
+    const images: string[] = [];
+    const videos: string[] = [];
 
     // Extract image URLs
     $('img').each((_, element) => {
@@ -44,16 +48,16 @@ export default async function handler(
       const srcset = $(element).attr('srcset');
 
       if (src) {
-        imageUrls.add(makeUrlAbsolute(src, url));
+        images.push(makeUrlAbsolute(src, url));
       }
       if (dataSrc) {
-        imageUrls.add(makeUrlAbsolute(dataSrc, url));
+        images.push(makeUrlAbsolute(dataSrc, url));
       }
       if (srcset) {
         srcset.split(',').forEach(src => {
           const srcUrl = src.trim().split(' ')[0];
           if (srcUrl) {
-            imageUrls.add(makeUrlAbsolute(srcUrl, url));
+            images.push(makeUrlAbsolute(srcUrl, url));
           }
         });
       }
@@ -63,25 +67,22 @@ export default async function handler(
     $('video').each((_, element) => {
       const src = $(element).attr('src');
       if (src) {
-        videoUrls.add(makeUrlAbsolute(src, url));
+        videos.push(makeUrlAbsolute(src, url));
       }
 
       // Check for source tags within video elements
       $(element).find('source').each((_, sourceElement) => {
         const sourceSrc = $(sourceElement).attr('src');
         if (sourceSrc) {
-          videoUrls.add(makeUrlAbsolute(sourceSrc, url));
+          videos.push(makeUrlAbsolute(sourceSrc, url));
         }
       });
     });
 
-    // Convert Sets to Arrays
-    const images = Array.from(imageUrls);
-    const videos = Array.from(videoUrls);
-
+    // Remove duplicates and send response
     res.status(200).json({
-      images,
-      videos,
+      images: removeDuplicates(images),
+      videos: removeDuplicates(videos)
     });
   } catch (error) {
     console.error('Scraping error:', error);
