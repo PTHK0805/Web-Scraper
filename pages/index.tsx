@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Download, Loader2, File, FileImage, FileVideo } from 'lucide-react';
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
+
 
 interface MediaData {
   images: string[];
@@ -78,9 +81,16 @@ export default function Home() {
     try {
       const response = await axios.get(fileInfo.url, { responseType: 'blob' });
       download(response.data, fileInfo.name);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Download failed:', err);
-      alert('Failed to download file');
+      // alert('Failed to download file');
+      toast('Failed to download file', {
+        description: err?.message || 'An unexpected error occurred.',
+        action: {
+          label: 'Close',
+          onClick: () => toast.dismiss()
+        }
+      });
     }
   };
 
@@ -254,6 +264,8 @@ export default function Home() {
             )}
           </div>
         )}
+        <Toaster />
+
       </main>
     </div>
   );
