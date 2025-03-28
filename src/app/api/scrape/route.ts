@@ -15,6 +15,7 @@ export interface MediaItem {
     alt?: string;
     extension?: string;
     filename?: string;
+    poster?: string;
 }
 
 const getUrlDetails = (urlString: string): { extension?: string; filename?: string } => {

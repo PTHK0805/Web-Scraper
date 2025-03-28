@@ -18,6 +18,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"; // Import Pagination components
 import { Loader2, Download, Image as ImageIcon, Video as VideoIcon, Filter, X, Link } from "lucide-react";
+import Image from 'next/image';
 
 // Type matching the API response
 import type { MediaItem } from './api/scrape/route';
@@ -354,96 +355,71 @@ export default function HomePage() {
                                         key={item.src + index}
                                         className="overflow-hidden group dark:border-gray-700 h-72 relative shadow-md rounded-lg"
                                     >
-                                        {/* Media Display Area (no changes) */}
+                                        {/* Media Display Area */}
                                         <div className="absolute inset-0 bg-muted dark:bg-gray-800">
-                                            {item.type === 'image' ? (<img src={item.src} alt={item.alt || `Scraped Image ${index + 1}`} className="object-cover w-full h-full transition-opacity duration-300 group-hover:opacity-75" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />)
-                                                : (
-                                                    <video
-                                                        // Use item.src as the source
-                                                        src={item.src}
-                                                        // Fill the container, maintain aspect ratio (cover)
-                                                        className="object-cover w-full h-full"
-                                                        // Preload only metadata (duration, dimensions) initially to save bandwidth
-                                                        preload="metadata"
-                                                        // Mute the video to increase chances of displaying/potentially autoplaying
-                                                        muted
-                                                        // Usually want playsinline for mobile contexts if autoplaying
-                                                        // playsInline
-                                                        // Disable default controls for a cleaner preview in the grid
-                                                        controls={false}
-                                                        // Optional: Add a title for accessibility/hover
-                                                        title={item.filename || 'Scraped Video'}
-                                                        // You could add loop attribute if desired: loop
-                                                        // Handle potential video loading errors (optional)
-                                                        onError={(e) => {
-                                                            console.warn(`Failed to load video preview: ${item.src}`, e);
-                                                            // Optionally replace with placeholder on error
-                                                            // (e.target as HTMLVideoElement).style.display = 'none';
-                                                            // Consider showing the icon again if error occurs
-                                                        }}
-                                                    >
-                                                        {/* Fallback text if browser doesn't support video tag */}
-                                                        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-2 transition-opacity duration-300 group-hover:opacity-75"><VideoIcon className="w-1/2 h-1/2 mb-1 opacity-50 flex-shrink-0" /><span className="text-xs text-center break-words">Video Preview</span></div>
-                                                    </video>
-                                                )}
+                                            {item.type === 'image' ? (
+                                                // --- USE NEXT/IMAGE for main image ---
+                                                <Image
+                                                    src={item.src}
+                                                    alt={item.alt || `Scraped Image ${index + 1}`}
+                                                    fill // Makes the image fill the parent div (which is absolute inset-0)
+                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" // Help Next.js choose optimal image size based on grid columns
+                                                    className="object-cover transition-opacity duration-300 group-hover:opacity-75" // Keep object-cover
+                                                    // loading="lazy" is default in next/image
+                                                    // onError cannot be directly used, handle broken images if needed via placeholder logic or other means
+                                                    unoptimized={item.src.endsWith('.svg')} // Optional: Prevent optimization for SVGs if needed
+                                                />
+                                                // --- End NEXT/IMAGE ---
+                                            ) : item.poster ? (
+                                                // --- USE NEXT/IMAGE for poster image ---
+                                                <Image
+                                                    src={item.poster}
+                                                    alt={item.alt || `Video Poster: ${item.filename || 'Video'}`}
+                                                    fill
+                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" // Use similar sizes
+                                                    className="object-cover transition-opacity duration-300 group-hover:opacity-75"
+                                                    unoptimized={item.poster.endsWith('.svg')} // Optional
+                                                />
+                                                // --- End NEXT/IMAGE ---
+                                            ) : (
+                                                // Video tag or placeholder (no change here)
+                                                <video
+                                                    src={item.src}
+                                                    className="object-cover w-full h-full"
+                                                    preload="metadata"
+                                                    muted
+                                                    controls={false}
+                                                    title={item.filename || 'Scraped Video'}
+                                                    onError={(e) => { console.warn(`Failed to load video preview: ${item.src}`, e); }}
+                                                >
+                                                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-2 transition-opacity duration-300 group-hover:opacity-75"><VideoIcon className="w-1/2 h-1/2 mb-1 opacity-50 flex-shrink-0" /><span className="text-xs text-center break-words">Video Preview</span></div>
+                                                </video>
+                                            )}
                                         </div>
 
-                                        {/* Hover Overlay with Gradient and Info (DESKTOP HOVER) */}
+                                        {/* Overlays and Buttons (no change here) */}
+                                        {/* Hover Overlay (Desktop) */}
                                         <div className="absolute inset-0 hidden sm:flex flex-col justify-end p-3 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            {/* ... content ... */}
                                             <div className="flex justify-between items-center gap-2">
-                                                {/* Filename */}
-                                                <span className="text-white text-xs font-medium truncate" title={item.filename || item.src}>
-                                                    {item.filename || 'Unknown Filename'}
-                                                </span>
-                                                {/* Button Group (Desktop) */}
-                                                <div className="flex items-center gap-1 flex-shrink-0"> {/* Group buttons */}
-                                                    {/* Copy Button (Desktop) */}
-                                                    <Button
-                                                        variant="secondary" size="icon"
-                                                        className="h-8 w-8 bg-white/20 hover:bg-white/40 border-none"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation(); // Prevent potential parent clicks
-                                                            navigator.clipboard.writeText(item.src)
-                                                                .then(() => toast.success("Link copied to clipboard!"))
-                                                                .catch(err => toast.error("Failed to copy link."));
-                                                        }} title="Copy media link"
-                                                    >
+                                                <span className="text-white text-xs font-medium truncate" title={item.filename || item.src}>{item.filename || 'Unknown Filename'}</span>
+                                                <div className="flex items-center gap-1 flex-shrink-0">
+                                                    <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/20 hover:bg-white/40 border-none flex items-center justify-center p-0" onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(item.src).then(() => toast.success("Link copied!")).catch(err => toast.error("Failed to copy link.")); }} title="Copy media link">
                                                         <Link className="h-4 w-4 text-white" />
                                                     </Button>
-                                                    {/* Download Button (Desktop) */}
-                                                    <Button
-                                                        variant="secondary" size="icon"
-                                                        className="h-8 w-8 bg-white/20 hover:bg-white/40 border-none"
-                                                        onClick={(e) => { e.stopPropagation(); handleDownloadSingle(item); }} title="Download this item"
-                                                    >
+                                                    <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/20 hover:bg-white/40 border-none flex items-center justify-center p-0" onClick={(e) => { e.stopPropagation(); handleDownloadSingle(item); }} title="Download this item">
                                                         <Download className="h-4 w-4 text-white" />
                                                     </Button>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {/* Button Group (MOBILE / TOUCH) */}
-                                        {/* Wrapper div is positioned, uses flex for button layout */}
+                                        {/* Button Group (Mobile) */}
                                         <div className="absolute top-2 right-2 z-10 block sm:hidden flex items-center gap-1">
-                                            {/* Copy Button (Mobile) */}
-                                            <Button
-                                                variant="secondary" size="icon"
-                                                className="h-8 w-8 bg-black/40 hover:bg-black/70 text-white backdrop-blur-sm border-none flex items-center justify-center p-0"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigator.clipboard.writeText(item.src)
-                                                        .then(() => toast.success("Link copied!"))
-                                                        .catch(err => toast.error("Failed to copy."));
-                                                }} title="Copy media link"
-                                            >
+                                            {/* ... buttons ... */}
+                                            <Button variant="secondary" size="icon" className="h-8 w-8 bg-black/40 hover:bg-black/70 text-white backdrop-blur-sm border-none flex items-center justify-center p-0" onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(item.src).then(() => toast.success("Link copied!")).catch(err => toast.error("Failed to copy.")); }} title="Copy media link">
                                                 <Link className="h-4 w-4" />
                                             </Button>
-                                            {/* Download Button (Mobile) */}
-                                            <Button
-                                                variant="secondary" size="icon"
-                                                className="h-8 w-8 bg-black/40 hover:bg-black/70 text-white backdrop-blur-sm border-none flex items-center justify-center p-0"
-                                                onClick={(e) => { e.stopPropagation(); handleDownloadSingle(item); }} title="Download this item"
-                                            >
+                                            <Button variant="secondary" size="icon" className="h-8 w-8 bg-black/40 hover:bg-black/70 text-white backdrop-blur-sm border-none flex items-center justify-center p-0" onClick={(e) => { e.stopPropagation(); handleDownloadSingle(item); }} title="Download this item">
                                                 <Download className="h-4 w-4" />
                                             </Button>
                                         </div>
