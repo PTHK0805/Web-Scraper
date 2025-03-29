@@ -4,7 +4,7 @@ import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 
 // --- Notion Client Initialization ---
 const notionApiKey = process.env.NOTION_API_KEY;
-const databaseId = process.env.NOTION_DATABASE_ID; // Renamed for clarity within this module
+const databaseId = process.env.NOTION_DATABASE_ID;
 
 let notion: Client | null = null;
 
@@ -14,7 +14,7 @@ if (notionApiKey && databaseId) {
         console.info("Notion client initialized successfully.");
     } catch (error) {
         console.error("Failed to initialize Notion client:", error);
-        notion = null; // Ensure notion is null if initialization fails
+        notion = null;
     }
 } else {
     console.warn("Notion API Key or Database ID not found in environment variables. Notion logging disabled.");
@@ -26,6 +26,9 @@ export interface NotionScrapeLogData {
     status: 'Success' | 'Failure';
     itemsFound?: number;
     errorMessage?: string;
+    // Method is optional, but expected values are now 'Selenium' or 'Fetch' if provided
+    method?: 'Selenium' | 'Fetch' | string; // Allow string for flexibility but document expected values
+    statusCode?: number; // Optional status code for errors
 }
 
 // --- Exportable Logging Function ---
@@ -34,66 +37,68 @@ export interface NotionScrapeLogData {
  * Silently skips if Notion client isn't initialized or database ID is missing.
  * Logs Notion API errors to the server console.
  *
- * @param data - The data for the log entry.
+ * @param data - The data for the log entry. Requires URL and Status.
  */
 export async function logScrapeEvent(data: NotionScrapeLogData): Promise<void> {
-    // Check if Notion client and database ID are available
     if (!notion || !databaseId) {
         // console.log("Skipping Notion log: Client not initialized or Database ID missing.");
-        return; // Exit silently if not configured
+        return;
     }
 
-    console.log(`Attempting to log scrape event to Notion: Status - ${data.status}, URL - ${data.url}`);
+    // Log attempt locally for server visibility
+    console.log(`Attempting to log to Notion: ${data.status} | Method: ${data.method || 'N/A'} | URL: ${data.url}`);
 
     try {
         // Construct the properties object for the Notion page
-        // IMPORTANT: Keys ('URL Scraped', 'Timestamp', etc.) MUST match your Notion DB column names exactly!
+        // IMPORTANT: Keys ('URL Scraped', etc.) MUST match your Notion DB column names EXACTLY!
         const properties: CreatePageParameters["properties"] = {
-            // Assuming 'URL Scraped' is your Title property
+            // Example: Assuming 'URL Scraped' is your Title property
             'URL Scraped': {
                 title: [
-                    {
-                        text: {
-                            // Limit title length if Notion has constraints or for readability
-                            content: data.url.substring(0, 250),
-                        },
-                    },
+                    { text: { content: data.url.substring(0, 250) } }, // Limit length
                 ],
             },
-
-            'Timestamp': {
+            'Timestamp': { // Assuming 'Timestamp' is a Date property
                 date: {
-                    start: new Date().toISOString(), // Use current time
+                    start: new Date().toISOString(),
                 },
             },
-            'Status': {
+            'Status': { // Assuming 'Status' is a Select property
                 select: {
-                    name: data.status, // Ensure 'Success' and 'Failure' exist as options in Notion
+                    name: data.status, // Ensure 'Success' and 'Failure' options exist in Notion
                 },
             },
         };
 
-        // Conditionally add 'Items Found' if it's a valid number
+        // Conditionally add 'Items Found' (assuming Number property)
         if (data.itemsFound !== undefined && data.itemsFound >= 0) {
-            properties['Items Found'] = { // Use bracket notation for names with spaces
-                number: data.itemsFound,
-            };
+            properties['Items Found'] = { number: data.itemsFound };
         }
 
-        // Conditionally add 'Error Message' if it exists
+        // Conditionally add 'Error Message' (assuming Text or Rich Text property)
         if (data.errorMessage) {
-            properties['Error Message'] = { // Use bracket notation
-                // Notion's rich_text expects an array of text objects
+            properties['Error Message'] = {
                 rich_text: [
-                    {
-                        text: {
-                            // Truncate message to avoid Notion API limits (usually 2000 characters per block)
-                            content: data.errorMessage.substring(0, 2000),
-                        },
-                    },
+                    { text: { content: data.errorMessage.substring(0, 2000) } }, // Truncate
                 ],
             };
         }
+
+        // Conditionally add 'Method' (assuming Select or Text property)
+        if (data.method) {
+            // Adjust based on your Notion column type:
+            // If 'Method' is a SELECT property:
+            properties['Method'] = { select: { name: data.method } };
+            // If 'Method' is a TEXT or RICH_TEXT property:
+            // properties['Method'] = { rich_text: [{ text: { content: data.method } }] };
+        }
+
+        // Conditionally add 'Status Code' (assuming Number property)
+        if (data.statusCode !== undefined) {
+             // Ensure the property name matches your Notion DB, e.g., 'HTTP Status Code'
+            properties['Status Code'] = { number: data.statusCode };
+        }
+
 
         // Create the page in Notion
         await notion.pages.create({
@@ -101,11 +106,9 @@ export async function logScrapeEvent(data: NotionScrapeLogData): Promise<void> {
             properties: properties,
         });
 
-        console.log("Successfully logged scrape event to Notion.");
+        console.log(`Successfully logged event to Notion for URL: ${data.url}`);
 
     } catch (error: any) {
-        // Log Notion-specific errors to the server console ONLY
-        // Avoid crashing the main API route due to logging issues
         console.error("Failed to log scrape event to Notion:", error.body || error.message || error);
     }
 }
