@@ -21,11 +21,21 @@ export function ThemeToggle() {
     <DropdownMenu>
       {/* The trigger is a button with icons indicating the current mode */}
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          {/* Sun icon shown in light mode, hidden in dark mode */}
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          {/* Moon icon hidden in light mode, shown in dark mode */}
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <Button
+            variant="outline"
+            size="icon"
+            className="relative h-10 w-10 rounded-full transition-all duration-300 ease-in-out dark:bg-slate-900 dark:text-slate-100 dark:backdrop-blur-sm dark:ring-1 dark:ring-slate-800"
+        >
+          {/* Sun icon shown in light mode */}
+          <Sun
+              className="absolute top-1/2 left-1/2 h-[1.4rem] w-[1.4rem] -translate-x-1/2 -translate-y-1/2 rotate-0 scale-100 transition-all duration-300 ease-in-out dark:-rotate-90 dark:scale-0"
+              style={{ color: 'var(--sun-color)' }}
+          />
+          {/* Moon icon shown in dark mode */}
+          <Moon
+              className="absolute top-1/2 left-1/2 h-[1.4rem] w-[1.4rem] -translate-x-1/2 -translate-y-1/2 rotate-90 scale-0 transition-all duration-300 ease-in-out dark:rotate-0 dark:scale-100"
+              style={{ color: 'var(--moon-color)' }}
+          />
           {/* Screen reader text */}
           <span className="sr-only">Toggle theme</span>
         </Button>

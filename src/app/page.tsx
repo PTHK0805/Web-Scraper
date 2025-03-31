@@ -216,7 +216,7 @@ export default function HomePage() {
                     {/* URL Input Form in its own card */}
                     <Card className="mb-6 bg-muted/30 dark:bg-gray-800/30 shadow-sm">
                         <CardContent className="p-4 md:p-6">
-                           <form onSubmit={handleScrape} className="space-y-4">
+                            <form onSubmit={handleScrape} className="space-y-4">
                                 <div className="space-y-1">
                                     <Label htmlFor="urlInput" className="font-medium">Website URL</Label>
                                     <div className="flex flex-col sm:flex-row gap-2">
@@ -342,22 +342,21 @@ export default function HomePage() {
                                                         onLoadingComplete={(img) => { if (!imageDetails[item.src]) setImageDetails(prev => ({ ...prev, [item.src]: { width: img.naturalWidth, height: img.naturalHeight } })); }}
                                                         onError={(e) => { console.warn(`Failed to load image: ${item.src}`); (e.target as HTMLImageElement).style.opacity = '0'; /* Hide broken image */ }}
                                                     />
-                                                ) : item.poster ? (
-                                                    <NextImage
-                                                        src={item.poster}
-                                                        alt={item.alt || `Video Poster: ${item.filename || 'Video'}`}
-                                                        fill
-                                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                                        className="object-cover w-full h-full transition-all duration-300 ease-in-out group-hover:opacity-80 group-hover:scale-105"
-                                                        unoptimized={item.poster.endsWith('.svg')}
-                                                        onLoadingComplete={(img) => { if (!imageDetails[item.src]) setImageDetails(prev => ({ ...prev, [item.src]: { width: img.naturalWidth, height: img.naturalHeight } })); }}
-                                                        onError={(e) => { console.warn(`Failed to load poster: ${item.poster}`); (e.target as HTMLImageElement).style.opacity = '0'; }}
-                                                    />
-                                                ) : ( // Video without poster - Placeholder fills the space
-                                                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-2">
-                                                        <VideoIcon className="w-1/2 h-1/2 mb-1 opacity-50 flex-shrink-0" />
-                                                        <span className="text-xs text-center break-words">Video Preview Unavailable</span>
-                                                    </div>
+                                                ) : (
+                                                    <video
+                                                        src={item.src}
+                                                        className="object-cover w-full h-full"
+                                                        preload="metadata"
+                                                        muted
+                                                        controls={false}
+                                                        title={item.filename || 'Scraped Video'}
+                                                        onError={(e) => { console.warn(`Failed to load video preview: ${item.src}`, e); }}
+                                                    >
+                                                        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-2">
+                                                            <VideoIcon className="w-1/2 h-1/2 mb-1 opacity-50 flex-shrink-0" />
+                                                            <span className="text-xs text-center break-words">Video Preview Unavailable</span>
+                                                        </div>
+                                                    </video>
                                                 )}
                                             </div>
 
@@ -373,7 +372,7 @@ export default function HomePage() {
                                                             {item.extension.toUpperCase()}
                                                         </span>
                                                     )}
-                                                    {(item.type === 'image' || item.poster) && dimensions && (
+                                                    {(item.type === 'image' || item.type === 'video') && dimensions && (
                                                         <span className='whitespace-nowrap text-[10px]'>
                                                             {`${dimensions.width}x${dimensions.height}`}
                                                         </span>
@@ -404,7 +403,7 @@ export default function HomePage() {
                                                                 {item.extension.toUpperCase()}
                                                             </span>
                                                         )}
-                                                        {(item.type === 'image' || item.poster) && dimensions && (
+                                                        {(item.type === 'image' || item.type === 'video') && dimensions && (
                                                             <span className='whitespace-nowrap text-[10px]'>
                                                                 {`${dimensions.width}x${dimensions.height}`}
                                                             </span>
@@ -466,7 +465,7 @@ export default function HomePage() {
                             No media found matching the criteria on the specified page, or the attempt failed.
                         </div>
                     )}
-                     {!isLoading && !error && allMedia.length > 0 && filteredMedia.length === 0 && ( // Show when filters result in no items
+                    {!isLoading && !error && allMedia.length > 0 && filteredMedia.length === 0 && ( // Show when filters result in no items
                         <div className="text-center text-muted-foreground mt-8">
                             No media items match your current filter selection.
                         </div>
@@ -475,7 +474,7 @@ export default function HomePage() {
                 </CardContent>
 
                 {/* Footer */}
-                 <CardFooter className="text-center text-xs text-muted-foreground justify-center pt-6 pb-4 border-t dark:border-gray-700/50 mt-8"> {/* Added top border */}
+                <CardFooter className="text-center text-xs text-muted-foreground justify-center pt-6 pb-4 border-t dark:border-gray-700/50 mt-8"> {/* Added top border */}
                     Scrape and download responsibly. Respect copyright and website terms of service.
                 </CardFooter>
             </Card>
