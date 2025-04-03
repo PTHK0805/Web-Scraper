@@ -57,15 +57,15 @@ export function usePushNotifications() {
             }
             // Request permission if not granted (will prompt user)
             // Note: Some browsers require user interaction to request permission.
-             if (currentPermission === 'default') {
-                 const requestedPermission = await Notification.requestPermission();
-                 setPermissionStatus(requestedPermission);
-                 if (requestedPermission !== 'granted') {
-                     console.warn("Push notification permission not granted.");
-                     toast.warning("Permission Not Granted", { description: "Notifications cannot be enabled without permission." });
-                     return;
-                 }
-             }
+            if (currentPermission === 'default') {
+                const requestedPermission = await Notification.requestPermission();
+                setPermissionStatus(requestedPermission);
+                if (requestedPermission !== 'granted') {
+                    console.warn("Push notification permission not granted.");
+                    toast.warning("Permission Not Granted", { description: "Notifications cannot be enabled without permission." });
+                    return;
+                }
+            }
 
 
             const sub = await registration.pushManager.subscribe({
@@ -100,7 +100,8 @@ export function usePushNotifications() {
         try {
             setIsUnsubscribing(true);
             await subscription.unsubscribe();
-            await unsubscribeUser(); // Call server action
+            // Corrected unsubscribeUser call to pass the endpoint
+            await unsubscribeUser(subscription.endpoint);
             setSubscription(null);
             console.log("Successfully unsubscribed from push notifications.");
             toast.success("Unsubscribed", { description: "You will no longer receive notifications." });

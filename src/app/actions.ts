@@ -1,11 +1,9 @@
-// src/app/actions.ts
 'use server';
 
 import webpush, { PushSubscription } from 'web-push'; // Import PushSubscription type
 
 // --- Database Interaction Placeholders ---
 // Replace these with your actual database client and logic (e.g., Prisma, Drizzle, MongoDB)
-import { db } from '@/lib/db'; // Assuming you have a db instance configured
 
 async function dbSaveSubscription(sub: PushSubscription): Promise<void> {
     console.log('DB Placeholder: Saving subscription for endpoint:', sub.endpoint);
@@ -172,7 +170,7 @@ export async function sendNotification(title: string, message: string) {
     const payload = JSON.stringify({
         title: title,
         message: message, // Match the key used in sw.js ('message')
-        icon: '/icons/icon-192x192.png', // Match path in sw.js
+        icon: '/web-app-manifest-192x192.png', // Match path in sw.js
         // You can add more data here to be used in sw.js notificationclick
         // data: { url: '/some-target-path' }
     });

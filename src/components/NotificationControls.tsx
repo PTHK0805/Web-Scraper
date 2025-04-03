@@ -30,21 +30,22 @@ export function NotificationControls({
     const isAnyActionLoading = isSubscribeActionLoading || isUnsubscribeActionLoading;
 
     return (
-        <div className="flex flex-wrap gap-2 items-center mb-4">
+        <div className="fixed top-4 left-4 z-50">
             {subscription ? (
                 // --- Unsubscribe Button ---
                 <Button
+                    className="mr-2"
                     variant="destructive" // Use destructive variant
                     onClick={onUnsubscribe}
                     disabled={isAnyActionLoading}
-                    aria-label="Unsubscribe from notifications"
+                    aria-label=""
                 >
                     {isUnsubscribeActionLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        <BellOff className="mr-2 h-4 w-4" /> // BellOff icon
+                        <BellOff className="h-4 w-4" /> // BellOff icon
                     )}
-                    {isUnsubscribeActionLoading ? 'Unsubscribing...' : 'Unsubscribe'}
+                    {/*{isUnsubscribeActionLoading ? 'Unsubscribing...' : 'Unsubscribe'}*/}
                 </Button>
             ) : (
                 // --- Subscribe Button ---
@@ -52,18 +53,18 @@ export function NotificationControls({
                     variant="default" // Use default primary variant
                     onClick={onSubscribe}
                     disabled={isAnyActionLoading}
-                    aria-label="Subscribe to notifications"
+                    aria-label=""
                 >
                     {isSubscribeActionLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        <BellPlus className="mr-2 h-4 w-4" /> // BellPlus icon
+                        <BellPlus className="h-4 w-4" /> // BellPlus icon
                     )}
-                    {isSubscribeActionLoading ? 'Subscribing...' : 'Subscribe Notifications'}
+                    {/*{isSubscribeActionLoading ? 'Subscribing...' : 'Subscribe Notifications'}*/}
                 </Button>
             )}
 
-            {/* --- Send Test Notification Button --- */}
+             {/*--- Send Test Notification Button ---*/}
             {/*{subscription && (*/}
             {/*    <Button*/}
             {/*        variant="outline" // Keep outline for secondary action*/}

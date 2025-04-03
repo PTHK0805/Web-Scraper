@@ -114,8 +114,8 @@ self.addEventListener('push', function (event) {
         // Attempt to show notification with raw text data as body
         const title = "Notification";
         const options = {
-            body: event.data.body() || "You received a notification.",
-            icon: '/icons/icon-192x192.png', // Default icon path
+            body: data.message || "You received a notification.",
+            icon: '/web-app-manifest-192x192.png', // Default icon path
             badge: '/icons/badge-72x72.png' // Default badge path
         };
         event.waitUntil(self.registration.showNotification(title, options));
@@ -124,8 +124,8 @@ self.addEventListener('push', function (event) {
 
     const title = data.title || 'Media Extractor'; // Default title
     const options = {
-        body: data.body || 'You have a new notification.', // Use 'message' from your example code
-        icon: data.icon || '/icons/icon-192x192.png', // Ensure this icon exists
+        body: data.message || 'You have a new notification.', // Use 'message' from your example code
+        icon: data.icon || '/web-app-manifest-192x192.png', // Ensure this icon exists
         badge: data.badge || '/icons/badge-72x72.png', // Ensure this badge exists
         vibrate: data.vibrate || [100, 50, 100], // Allow overriding vibration
         // 'data' holds custom data for the notification click event
