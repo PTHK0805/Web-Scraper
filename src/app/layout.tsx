@@ -59,10 +59,6 @@ export default function RootLayout({
   return (
       <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ---- PWA / Mobile Specific Meta Tags ---- */}
-
-        {/* 1. Link the Web App Manifest (CRUCIAL for PWA) */}
-        <link rel="manifest" href="/manifest.json" />
 
         {/* 2. Apple Touch Icon (Icon for iOS Home Screen) */}
         {/*    Use the primary icon size (e.g., 192x192 or create a specific apple-touch-icon.png) */}
