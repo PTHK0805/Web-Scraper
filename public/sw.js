@@ -51,46 +51,46 @@ self.addEventListener('activate', (event) => {
 // --- 3. Lifecycle Event: Fetch ---
 // Fired for every network request made by pages controlled by the SW.
 // **REQUIRED for PWA installability check, even if basic.**
-self.addEventListener('fetch', (event) => {
-    // console.log('SW: Fetching', event.request.url);
-
-    // Example: Basic Cache-First strategy for assets (adapt as needed)
-    // For API calls, you'll likely want Network-First or Network-Only.
-    // if (event.request.method === 'GET') { // Only cache GET requests usually
-    //   event.respondWith(
-    //     caches.match(event.request).then((cachedResponse) => {
-    //       if (cachedResponse) {
-    //         // console.log('SW: Serving from cache:', event.request.url);
-    //         return cachedResponse; // Return cached asset
-    //       }
-    //       // console.log('SW: Fetching from network:', event.request.url);
-    //       return fetch(event.request).then(
-    //         (networkResponse) => {
-    //           // Optional: Cache the new response
-    //           // if (networkResponse && networkResponse.status === 200) {
-    //           //   const responseToCache = networkResponse.clone();
-    //           //   caches.open(CACHE_NAME).then((cache) => {
-    //           //     cache.put(event.request, responseToCache);
-    //           //   });
-    //           // }
-    //           return networkResponse;
-    //         }
-    //       ).catch(error => {
-    //            console.error('SW: Fetch failed; returning offline page instead.', error);
-    //           // Optional: return an offline fallback page/response
-    //           // return caches.match('/offline.html');
-    //         });
-    //     })
-    //   );
-    // } else {
-    // For non-GET requests, just fetch from network
-    event.respondWith(fetch(event.request));
-    // }
-
-    // --- OR: Simplest pass-through fetch handler (meets installability requirement) ---
-    // event.respondWith(fetch(event.request));
-
-});
+// self.addEventListener('fetch', (event) => {
+//     // console.log('SW: Fetching', event.request.url);
+//
+//     // Example: Basic Cache-First strategy for assets (adapt as needed)
+//     // For API calls, you'll likely want Network-First or Network-Only.
+//     // if (event.request.method === 'GET') { // Only cache GET requests usually
+//     //   event.respondWith(
+//     //     caches.match(event.request).then((cachedResponse) => {
+//     //       if (cachedResponse) {
+//     //         // console.log('SW: Serving from cache:', event.request.url);
+//     //         return cachedResponse; // Return cached asset
+//     //       }
+//     //       // console.log('SW: Fetching from network:', event.request.url);
+//     //       return fetch(event.request).then(
+//     //         (networkResponse) => {
+//     //           // Optional: Cache the new response
+//     //           // if (networkResponse && networkResponse.status === 200) {
+//     //           //   const responseToCache = networkResponse.clone();
+//     //           //   caches.open(CACHE_NAME).then((cache) => {
+//     //           //     cache.put(event.request, responseToCache);
+//     //           //   });
+//     //           // }
+//     //           return networkResponse;
+//     //         }
+//     //       ).catch(error => {
+//     //            console.error('SW: Fetch failed; returning offline page instead.', error);
+//     //           // Optional: return an offline fallback page/response
+//     //           // return caches.match('/offline.html');
+//     //         });
+//     //     })
+//     //   );
+//     // } else {
+//     // For non-GET requests, just fetch from network
+//     event.respondWith(fetch(event.request));
+//     // }
+//
+//     // --- OR: Simplest pass-through fetch handler (meets installability requirement) ---
+//     // event.respondWith(fetch(event.request));
+//
+// });
 
 
 // --- 4. Push Notification Event ---

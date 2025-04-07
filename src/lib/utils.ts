@@ -103,3 +103,27 @@ export const getPaginationItems = (currentPage: number, totalPages: number, maxP
   }
   return pageNumbers;
 };
+
+/**
+ * Formats bytes into a human-readable string (KB, MB, GB, etc.).
+ * @param bytes The number of bytes.
+ * @param decimals The number of decimal places (default: 1).
+ * @returns A formatted string like "1.5 MB", or null if bytes is undefined, null or NaN.
+ */
+export function formatBytes(bytes: number | undefined | null, decimals = 1): string | null {
+  if (bytes == null || isNaN(bytes)) return null; // Handle undefined, null, NaN
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  // Ensure index is within bounds, default to Bytes if something strange happens
+  const unit = sizes[i] ?? sizes[0];
+  // Use parseFloat to remove trailing zeros from toFixed if dm is 0
+  const value = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+
+  return `${value} ${unit}`;
+}

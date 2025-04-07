@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Loader2, BellPlus, BellOff, Send } from 'lucide-react'; // Import necessary icons
+import { Loader2, Bell, BellOff, Send } from 'lucide-react'; // Import necessary icons
 
 interface NotificationControlsProps {
     isSupported: boolean;
@@ -35,7 +35,7 @@ export function NotificationControls({
                 // --- Unsubscribe Button ---
                 <Button
                     className="mr-2"
-                    variant="destructive" // Use destructive variant
+                    variant="default" // Use destructive variant
                     onClick={onUnsubscribe}
                     disabled={isAnyActionLoading}
                     aria-label=""
@@ -43,14 +43,14 @@ export function NotificationControls({
                     {isUnsubscribeActionLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        <BellOff className="h-4 w-4" /> // BellOff icon
+                        <Bell className="h-4 w-4" />
                     )}
                     {/*{isUnsubscribeActionLoading ? 'Unsubscribing...' : 'Unsubscribe'}*/}
                 </Button>
             ) : (
                 // --- Subscribe Button ---
                 <Button
-                    variant="default" // Use default primary variant
+                    className="dark:bg-red-600 text-white"
                     onClick={onSubscribe}
                     disabled={isAnyActionLoading}
                     aria-label=""
@@ -58,7 +58,7 @@ export function NotificationControls({
                     {isSubscribeActionLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        <BellPlus className="h-4 w-4" /> // BellPlus icon
+                        <BellOff className="h-4 w-4" />
                     )}
                     {/*{isSubscribeActionLoading ? 'Subscribing...' : 'Subscribe Notifications'}*/}
                 </Button>
