@@ -2,7 +2,7 @@
   "redirects": [
     {
       "source": "/(.*)",
-      "destination": "https://media-extractor-v2.onrender.com/:1",
+      "destination": "https://media-extractor-v2.onrender.com/",
       "permanent": true
     }
   ]
