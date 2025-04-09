@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Media Extractor",
   description: "Extract and download various media types from websites with just a few clicks. Simple, fast, and reliable",
-  metadataBase: new URL('https://media-extractor.phyothihakyaw.com/'), // Good practice!
+  metadataBase: new URL('https://media-extractor-v2.onrender.com/'), // Good practice!
   authors: [
     {
       name: 'Phyo Thiha Kyaw',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     title: 'Media Extractor',
     description: 'Extract and download various media types from websites with just a few clicks. Simple, fast, and reliable',
     type: 'website',
-    url: 'https://media-extractor.phyothihakyaw.com/',
+    url: 'https://media-extractor-v2.onrender.com/',
     images: '/home.png',
     siteName: 'Media Extractor',
   },
