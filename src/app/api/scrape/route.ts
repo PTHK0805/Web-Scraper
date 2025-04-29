@@ -1,4 +1,5 @@
-// src/app/api/scrape/route.ts
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { logScrapeEvent } from '@/lib/notion';
